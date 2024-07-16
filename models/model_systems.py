@@ -27,7 +27,7 @@ class Systems(Base):
     __tablename__ = "Systems"
 
     Id = Column(Integer , primary_key=True , autoincrement=True)
-    EmployeeId = Column(Integer)
+    EmployeeId = Column(Integer , ForeignKey = "Employees.Id" , ondelete = "CASCADE")
     SystemNo = Column(String)
     Vendor = Column(String) # master table to be created
     RamCapacity = Column(Integer) 
