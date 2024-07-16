@@ -11,7 +11,6 @@ load_dotenv()
 # Get the database URL from the environment variable
 SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 
-# SQLALCHEMY_DATABASE_URL = "mssql+pymssql://sa:User123@DESKTOP-KUTTPQR/TicketDB"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
