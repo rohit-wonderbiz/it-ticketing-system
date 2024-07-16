@@ -7,7 +7,7 @@ from datetime import datetime
 class EmployeesBase(BaseModel):
     FirstName : str
     LastName : str
-    EmailId : str
+    EmailId : int
     Password : str
     DesignationId : int
     RoleId : int
@@ -23,7 +23,7 @@ class EmployeesRead(EmployeesBase):
     Id : int
     CreatedAt : datetime
     UpdatedAt : datetime
-
+    
 class Employees(Base):
     __tablename__ = "Employees"
 
