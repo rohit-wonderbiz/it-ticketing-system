@@ -36,7 +36,7 @@ async def read_all_employee(db: db_dependency):
 # Employees Table GET Method
 @employees.get("/get_employee_by_id/{emp_Id}", response_model=EmployeesRead, status_code=status.HTTP_200_OK)
 async def read_employee(emp_Id: int, db: db_dependency):
-    post = db.query(Employees).filter(Employees.id == emp_Id).first()
+    post = db.query(Employees).filter(Employees.Id == emp_Id).first()
     if post is None:
         raise HTTPException(status_code=404, detail='Employee was not found')
     return post
@@ -53,7 +53,7 @@ async def create_employee(emp: EmployeesCreate, db: db_dependency):
 # Employees Table DELETE Method
 @employees.delete("/delete_employee_by_id/{emp_Id}", status_code=status.HTTP_200_OK)
 async def delete_employee(emp_Id: int, db: db_dependency):
-    db_post = db.query(Employees).filter(Employees.id == emp_Id).first()
+    db_post = db.query(Employees).filter(Employees.Id == emp_Id).first()
     if db_post is None:
         raise HTTPException(status_code=404, detail='Employee was not found')
     db.delete(db_post)
@@ -62,7 +62,7 @@ async def delete_employee(emp_Id: int, db: db_dependency):
 # Employees Table EDIT Method
 @employees.put("/edit_employee_by_id/{emp_Id}", response_model=EmployeesRead, status_code=status.HTTP_200_OK)
 async def update_employee(emp_Id: int, updated_post: EmployeesCreate, db: db_dependency):
-    db_post = db.query(Employees).filter(Employees.id == emp_Id).first()
+    db_post = db.query(Employees).filter(Employees.Id == emp_Id).first()
     if db_post is None:
         raise HTTPException(status_code=404, detail='Employee was not found')
 
