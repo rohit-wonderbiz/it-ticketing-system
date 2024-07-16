@@ -2,6 +2,7 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, f
 from sqlalchemy.orm import relationship
 from database import Base
 from pydantic import BaseModel
+from datetime import datetime
 
 class EmployeesBase(BaseModel):
     FirstName : str
@@ -14,8 +15,14 @@ class EmployeesBase(BaseModel):
     Manager2Id  : int
     Phone : int
     SystemId : int
-    CreatedAt : DateTime
-    UpdatedAt : DateTime
+
+class EmployeesCreate(EmployeesBase):
+    pass
+
+class EmployeesRead(EmployeesBase):
+    Id : int
+    CreatedAt : datetime
+    UpdatedAt : datetime
 
 class Employees(Base):
     __tablename__ = "Employees"
