@@ -58,6 +58,7 @@ async def delete_employee(emp_Id: int, db: db_dependency):
         raise HTTPException(status_code=404, detail='Employee was not found')
     db.delete(db_post)
     db.commit()
+    return "Employee Deleted!"
 
 # Employees Table EDIT Method
 @employees.put("/edit_employee_by_id/{emp_Id}", response_model=EmployeesRead, status_code=status.HTTP_200_OK)
