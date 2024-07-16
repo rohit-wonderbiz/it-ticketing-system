@@ -7,7 +7,7 @@ from datetime import datetime
 class EmployeesBase(BaseModel):
     FirstName : str
     LastName : str
-    EmailId : int
+    Email : str
     Password : str
     RoleId : int
     Manager1Id : int
