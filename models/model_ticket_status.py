@@ -4,14 +4,14 @@ from database import Base
 from pydantic import BaseModel
 from datetime import datetime
 
-class TicketStatus(BaseModel):
+class TicketStatusBase(BaseModel):
     TicketId : int
     Status : str
 
-class TicketStatusCreate(TicketStatus):
+class TicketStatusCreate(TicketStatusBase):
     pass
 
-class TicketStatusRead(TicketStatus):
+class TicketStatusRead(TicketStatusBase):
     Id : int
 
     
