@@ -14,7 +14,7 @@ class RoleRead(RolesBase):
     Id: int
 
     class Config():
-        orm_mode = True
+        from_attributes = True
         
 class Roles(Base):
     __tablename__ = "Roles"
