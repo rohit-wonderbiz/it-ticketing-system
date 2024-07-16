@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 
-from database import engine, Base, SessionLocal
+from database import engine, Base
 
+import database
+from database import Base, engine
 from apis.employees import employees
-from models.model_vendors import Vendors
-# from api.employer_profile import employer_profile
-# from api.job_posting import job_posting
 
 # Create all tables in the database
 Base.metadata.create_all(bind=engine)
