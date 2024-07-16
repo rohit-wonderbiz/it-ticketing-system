@@ -7,7 +7,7 @@ from datetime import datetime
 class EmployeesBase(BaseModel):
     FirstName : str
     LastName : str
-    EmailId : int
+    Email : str
     Password : str
     RoleId : int
     Manager1Id : int
@@ -30,9 +30,8 @@ class Employees(Base):
     LastName = Column(String(50))
     Email = Column(String(50))    #foriegn key Setting Table(Id)
     Password = Column(String(50))
-    RoleId = Column(Integer)   #foriegn key Role Table(Id)
-    Manager1Id = Column(Integer) #foriegn key Employees Table(Id)
-    Manager2Id = Column(Integer) #foriegn key Employees Table(Id)
-    Phone = Column(Integer)
+    RoleId = Column(Integer , ForeignKey("Roles.Id" , ondelete = "CASCADE") , nullable=True )   #foriegn key Role Table(Id)
+    Manager1Id = Column(Integer, ForeignKey("Employees.Id" , ondelete = "NO ACTION"), nullable=True) #foriegn key Employees Table(Id)
+    Manager2Id = Column(Integer, ForeignKey("Employees.Id" , ondelete = "NO ACTION"), nullable=True)
     CreatedAt = Column(DateTime(timezone=True), server_default=func.now())
     UpdatedAt = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
