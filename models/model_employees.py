@@ -35,3 +35,4 @@ class Employees(Base):
     Manager2Id = Column(Integer, ForeignKey("Employees.Id" , ondelete = "NO ACTION"), nullable=True)
     CreatedAt = Column(DateTime(timezone=True), server_default=func.now())
     UpdatedAt = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
+    Phone = Column(Integer)
