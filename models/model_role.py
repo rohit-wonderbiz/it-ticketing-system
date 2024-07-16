@@ -6,6 +6,7 @@ from datetime import datetime
 
 class RolesBase(BaseModel):
     RoleName : str
+    RoleCode : str = None
 
 class RoleCreate(RolesBase):
     pass
@@ -20,4 +21,5 @@ class Roles(Base):
     __tablename__ = "Roles"
 
     Id = Column(Integer , primary_key=True , autoincrement=True)
+    RoleCode = Column(String, default="default")
     RoleName = Column(String)
