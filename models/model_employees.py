@@ -38,5 +38,5 @@ class Employees(Base):
     Manager2Id = Column(Integer) #foriegn key Employees Table(Id)
     Phone = Column(Integer)
     SystemId = Column(Integer) #Foriegn key SystemId Table(Id)
-    CreatedAt = Column(DateTime , server_default=func.current_timestamp)
-    UpdatedAt = Column(DateTime , server_default=func.current_timestamp , onupdate=func.current_timestamp)
+    CreatedAt = Column(DateTime(timezone=True), server_default=func.now())
+    UpdatedAt = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())

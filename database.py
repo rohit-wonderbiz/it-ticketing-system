@@ -2,8 +2,16 @@ from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.exc import OperationalError
+# import os
+# from dotenv import load_dotenv
 
-SQLALCHEMY_DATABASE_URL = "mssql+pymssql://sa:user123@DESKTOP-KJNB6CH/TicketDB"
+# # Load environment variables from .env file
+# load_dotenv()
+
+# # Get the database URL from the environment variable
+# SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
+
+SQLALCHEMY_DATABASE_URL = "mssql+pymssql://sa:User123@DESKTOP-KJNB6CH/TicketDB"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

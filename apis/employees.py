@@ -4,38 +4,26 @@ from typing import Annotated, Optional
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from models.model_employees import Employees
-from database import Sessionlocal
+from models.model_employees import Employees #Models
+from models.model_employees import EmployeesBase, EmployeesCreate, EmployeesRead #Pydantic model
+from database import SessionLocal
 
 employees = APIRouter()
 
-class EmployeesBase(BaseModel):
-    username: str
-    email: str
-    first_name: str
-    last_name: str
-    phone: int
-    address: str
-
-class EmployeesCreate(EmployeesBase):
-    pass
-
-class EmployeesRead(EmployeesBase):
-    id: int
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 def get_db():
-    db = Sessionlocal()
+    db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
+
+# Employees Table GET Method ALL
+@employees.get("/", status_code=status.HTTP_200_OK)
+async def read():
+    return "Hello"
 
 # Employees Table GET Method ALL
 @employees.get("/get_all_employees/", response_model=list[EmployeesRead], status_code=status.HTTP_200_OK)
