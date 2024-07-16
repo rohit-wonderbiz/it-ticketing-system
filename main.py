@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from database import engine, Sessionlocal, Base
-from app.apis.employees import employees
+from apis.employees import employees
 # from api.employer_profile import employer_profile
 # from api.job_posting import job_posting
 
