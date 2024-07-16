@@ -12,7 +12,7 @@ class DisksCreate(DisksBase):
     DiskCapacity : str
 
     class Config():
-        orm_mode = True
+        orm_mode =True
 
 
 class Disks(Base):
