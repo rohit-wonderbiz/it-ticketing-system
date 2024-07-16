@@ -1,6 +1,21 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, func
 from sqlalchemy.orm import relationship
 from database import Base
+from pydantic import BaseModel
+
+class EmployeesBase(BaseModel):
+    FirstName : str
+    LastName : str
+    EmailId : str
+    Password : str
+    DesignationId : int
+    RoleId : int
+    Manager1Id : int
+    Manager2Id  : int
+    Phone : int
+    SystemId : int
+    CreatedAt : DateTime
+    UpdatedAt : DateTime
 
 class Employees(Base):
     __tablename__ = "Employees"
