@@ -36,7 +36,7 @@ class Employees(Base):
     RoleId = Column(Integer)   #foriegn key Role Table(Id)
     Manager1Id = Column(Integer) #foriegn key Employees Table(Id)
     Manager2Id = Column(Integer) #foriegn key Employees Table(Id)
-    Phone = Column(Integer(10))
+    Phone = Column(Integer)
     SystemId = Column(Integer) #Foriegn key SystemId Table(Id)
     CreatedAt = Column(DateTime , server_default=func.current_timestamp)
     UpdatedAt = Column(DateTime , server_default=func.current_timestamp , onupdate=func.current_timestamp)
