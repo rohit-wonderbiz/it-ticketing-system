@@ -6,6 +6,7 @@ import database
 from database import Base, engine
 from apis.employees import employees
 from apis.systems import systems
+from apis.roles import roles
 
 # Create all tables in the database
 Base.metadata.create_all(bind=engine)
@@ -14,5 +15,4 @@ app = FastAPI()
 
 app.include_router(employees)
 app.include_router(systems)
-# app.include_router(employer_profile)
-# app.include_router(job_posting)
+app.include_router(roles)
