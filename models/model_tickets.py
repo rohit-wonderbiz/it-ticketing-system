@@ -8,9 +8,8 @@ class TicketsBase(BaseModel):
     EmployeeId : int
     TicketTitle : str
     Description : str
-    TicketType :str
-    Category : str
-    Priority : str
+    TicketStatusId : int
+    PriorityId : int
 
 class TicketsCreate(TicketsBase):
     pass
@@ -27,8 +26,7 @@ class Tickets(Base):
     EmployeeId = Column(Integer , ForeignKey("Employees.Id", ondelete="NO ACTION") , nullable=True)
     TicketTitle = Column(String(50))
     Description = Column(String(300))
-    TicketType = Column(String(10))
-    Category = Column(String(30))
-    Priority = Column(String(30))
+    TicketStatusId = Column(Integer , ForeignKey("TicketStatus.Id",ondelete="NO ACTION") , nullable=True)
+    PriorityId = Column(Integer , ForeignKey("TicketPriority.Id" , ondelete="NO ACTION"), nullable=True)
     CreatedAt = Column(DateTime(timezone=True), server_default=func.now())
     UpdatedAt = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())

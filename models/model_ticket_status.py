@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class TicketStatusBase(BaseModel):
-    TicketId : int
     Status : str
 
 class TicketStatusCreate(TicketStatusBase):
@@ -19,5 +18,4 @@ class TicketStatus(Base):
     __tablename__ = "TicketStatus"
 
     Id = Column(Integer , primary_key=True , autoincrement=True)
-    TicketId = Column(Integer , ForeignKey("Tickets.Id",ondelete="NO ACTION"),nullable=True)
     Status = Column(String(15))
