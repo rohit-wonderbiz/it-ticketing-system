@@ -56,6 +56,7 @@ async def delete_system(sys_Id: int, db: db_dependency):
     db_post = db.query(EmployeeSystems).filter(EmployeeSystems.Id == sys_Id).first()
     if db_post is None:
         raise HTTPException(status_code=404, detail='System was not found')
+    print(db_post)
     db.delete(db_post)
     db.commit()
     return "Employee Deleted!"
