@@ -6,8 +6,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 def send_email(receiver_email, subject, body):
-    sender_email = "zeroth.rohit@gmail.com"  # Replace with your email address
-    password = "aupuzkbuwiadxwgd"  # Replace with your email password
+    sender_email = "test1.wonderbiz@gmail.com"  # Replace with your email address
+    password = "lnmgtmzpuhsubskx"  # Replace with your email password
 
     # Create a multipart message and set headers
     message = MIMEMultipart()
