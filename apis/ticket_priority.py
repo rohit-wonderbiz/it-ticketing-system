@@ -33,9 +33,9 @@ async def read_all_ticketPriority(db: db_dependency):
     return employee_ticketsPriority
 
 # Ticket Priority Table GET Method
-@ticket_priority.get("/ticketPriority/{ticketS_Id}", response_model=TicketPriorityRead, status_code=status.HTTP_200_OK)
-async def read_ticketPriority(ticketS_Id: int, db: db_dependency):
-    ticketsPriority = db.query(TicketPriority).filter(TicketPriority.Id == ticketS_Id).first()
+@ticket_priority.get("/ticketPriority/{ticketP_Id}", response_model=TicketPriorityRead, status_code=status.HTTP_200_OK)
+async def read_ticketPriority(ticketP_Id: int, db: db_dependency):
+    ticketsPriority = db.query(TicketPriority).filter(TicketPriority.Id == ticketP_Id).first()
     if ticketsPriority is None:
         raise HTTPException(status_code=404, detail='Ticket Priority was not found')
     return ticketsPriority
@@ -50,9 +50,9 @@ async def create_ticketPriority(emp: TicketPriorityCreate, db: db_dependency):
     return db_post
 
 # Ticket Status Table DELETE Method
-@ticket_priority.delete("/ticketPriority/{ticketS_Id}", status_code=status.HTTP_200_OK)
-async def delete_ticketPriority(ticketS_Id: int, db: db_dependency):
-    db_post = db.query(TicketPriority).filter(TicketPriority.Id == ticketS_Id).first()
+@ticket_priority.delete("/ticketPriority/{ticketSticketP_Id_Id}", status_code=status.HTTP_200_OK)
+async def delete_ticketPriority(ticketP_Id: int, db: db_dependency):
+    db_post = db.query(TicketPriority).filter(TicketPriority.Id == ticketP_Id).first()
     if db_post is None:
         raise HTTPException(status_code=404, detail='Ticket Priority was not found')
     db.delete(db_post)
@@ -60,9 +60,9 @@ async def delete_ticketPriority(ticketS_Id: int, db: db_dependency):
     return "Ticket Priority Deleted!"
 
 # Ticket Priority Table EDIT Method
-@ticket_priority.put("/ticketPriority/{ticketS_Id}", response_model=TicketPriorityRead, status_code=status.HTTP_200_OK)
-async def update_ticketPriority(ticketS_Id: int, updated_post: TicketPriorityCreate, db: db_dependency):
-    db_post = db.query(TicketPriority).filter(TicketPriority.Id == ticketS_Id).first()
+@ticket_priority.put("/ticketPriority/{ticketP_Id}", response_model=TicketPriorityRead, status_code=status.HTTP_200_OK)
+async def update_ticketPriority(ticketP_Id: int, updated_post: TicketPriorityCreate, db: db_dependency):
+    db_post = db.query(TicketPriority).filter(TicketPriority.Id == ticketP_Id).first()
     if db_post is None:
         raise HTTPException(status_code=404, detail='Ticket Priority was not found')
 
