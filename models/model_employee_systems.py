@@ -3,19 +3,20 @@ from sqlalchemy.orm import relationship
 from database import Base
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
-class SystemsBase(BaseModel):
-    EmployeeId : int
+class EmployeeSystemsBase(BaseModel):
+    EmployeeId : Optional[int] = None
     SystemNo : str
     Vendor : str
     RamCapacity : int 
     Disk1Capacity : int
     Disk2Capacity : int
 
-class SystemsCreate(SystemsBase):
+class EmployeeSystemsCreate(EmployeeSystemsBase):
     pass
 
-class SystemsRead(SystemsBase):
+class EmployeeSystemsRead(EmployeeSystemsBase):
     Id:int
     CreatedAt : datetime
     UpdatedAt : datetime
@@ -23,11 +24,11 @@ class SystemsRead(SystemsBase):
     class Config():
         from_attributes = True
 
-class Systems(Base):
-    __tablename__ = "Systems"
+class EmployeeSystems(Base):
+    __tablename__ = "EmployeeSystems"
 
     Id = Column(Integer , primary_key=True , autoincrement=True)
-    EmployeeId = Column(Integer , ForeignKey("Employees.Id" , ondelete = "CASCADE"),nullable=True)
+    EmployeeId = Column(Integer , ForeignKey("Employees.Id" , ondelete = "NO ACTION"),nullable=True)
     SystemNo = Column(String)
     Vendor = Column(String) # master table to be created
     RamCapacity = Column(Integer) 
