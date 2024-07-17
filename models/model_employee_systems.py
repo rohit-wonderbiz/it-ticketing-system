@@ -3,10 +3,9 @@ from sqlalchemy.orm import relationship
 from database import Base
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
 
 class EmployeeSystemsBase(BaseModel):
-    EmployeeId : Optional[int] = None
+    EmployeeId : int
     SystemNo : str
     Vendor : str
     RamCapacity : int 
