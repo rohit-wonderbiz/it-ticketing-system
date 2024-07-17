@@ -4,11 +4,11 @@ from typing import Annotated, Optional
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from app.models.model_employee_systems import Systems #Models
-from app.models.model_employee_systems import SystemsBase, SystemsCreate, SystemsRead #Pydantic model
+from models.model_employee_systems import EmployeeSystems #Models
+from models.model_employee_systems import EmployeeSystemsBase, EmployeeSystemsCreate, EmployeeSystemsRead #Pydantic model
 from database import SessionLocal
 
-systems = APIRouter()
+employee_systems = APIRouter()
 
 
 def get_db():
@@ -20,50 +20,50 @@ def get_db():
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
-# Systems Table GET Method ALL
-@systems.get("/", status_code=status.HTTP_200_OK)
+# Employee Systems Table GET Method ALL
+@employee_systems.get("/", status_code=status.HTTP_200_OK)
 async def read():
     return "Hello"
 
-# Systems Table GET Method ALL
-@systems.get("/get_all_systems/", response_model=list[SystemsRead], status_code=status.HTTP_200_OK)
+# Employee Systems Table GET Method ALL
+@employee_systems.get("/employeeSystem/", response_model=list[EmployeeSystemsRead], status_code=status.HTTP_200_OK)
 async def read_all_system(db: db_dependency):
-    employee_system = db.query(Systems).all()
+    employee_system = db.query(EmployeeSystems).all()
     if not employee_system:
         raise HTTPException(status_code=404, detail='No system were found')
     return employee_system
 
-# Systems Table GET Method
-@systems.get("/get_system_by_id/{sys_Id}", response_model=SystemsRead, status_code=status.HTTP_200_OK)
+# Employee Systems Table GET Method
+@employee_systems.get("/employeeSystem/{sys_Id}", response_model=EmployeeSystemsRead, status_code=status.HTTP_200_OK)
 async def read_system(sys_Id: int, db: db_dependency):
-    systems = db.query(Systems).filter(Systems.Id == sys_Id).first()
+    systems = db.query(EmployeeSystems).filter(EmployeeSystems.Id == sys_Id).first()
     if systems is None:
         raise HTTPException(status_code=404, detail='System was not found')
     return systems
 
-# Systems Table POST Method
-@systems.post("/add_system/", response_model=SystemsRead, status_code=status.HTTP_201_CREATED)
-async def create_system(emp: SystemsCreate, db: db_dependency):
-    db_post = Systems(**emp.model_dump())
+# Employee Systems Table POST Method
+@employee_systems.post("/employeeSystem/", response_model=EmployeeSystemsRead, status_code=status.HTTP_201_CREATED)
+async def create_system(emp: EmployeeSystemsCreate, db: db_dependency):
+    db_post = EmployeeSystems(**emp.model_dump())
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
     return db_post
 
-# Systems Table DELETE Method
-@systems.delete("/delete_system_by_id/{sys_Id}", status_code=status.HTTP_200_OK)
+# Employee Systems Table DELETE Method
+@employee_systems.delete("/employeeSystem/{sys_Id}", status_code=status.HTTP_200_OK)
 async def delete_system(sys_Id: int, db: db_dependency):
-    db_post = db.query(Systems).filter(Systems.Id == sys_Id).first()
+    db_post = db.query(EmployeeSystems).filter(EmployeeSystems.Id == sys_Id).first()
     if db_post is None:
         raise HTTPException(status_code=404, detail='System was not found')
     db.delete(db_post)
     db.commit()
     return "Employee Deleted!"
 
-# Systems Table EDIT Method
-@systems.put("/edit_system_by_id/{sys_Id}", response_model=SystemsRead, status_code=status.HTTP_200_OK)
-async def update_system(sys_Id: int, updated_post: SystemsCreate, db: db_dependency):
-    db_post = db.query(Systems).filter(Systems.Id == sys_Id).first()
+# Employee Systems Table EDIT Method
+@employee_systems.put("/employeeSystem/{sys_Id}", response_model=EmployeeSystemsRead, status_code=status.HTTP_200_OK)
+async def update_system(sys_Id: int, updated_post: EmployeeSystemsCreate, db: db_dependency):
+    db_post = db.query(EmployeeSystems).filter(EmployeeSystems.Id == sys_Id).first()
     if db_post is None:
         raise HTTPException(status_code=404, detail='System was not found')
 
