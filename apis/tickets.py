@@ -66,7 +66,7 @@ async def create_ticket(emp: TicketsCreate, db: db_dependency):
         if employee is None:
             raise HTTPException(status_code=404, detail='Employee not found')
 
-        emp_email = employee.Email # Assuming the email attribute in Employees model is named 'email'
+        emp_email = employee.UserEmail # Assuming the email attribute in Employees model is named 'email'
         print(emp_email)
         send_email(emp_email, "New Ticket Created", f"Ticket ID: {db_post.Id} has been created successfully.")
     except Exception as e:
