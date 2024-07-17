@@ -25,7 +25,7 @@ async def read():
     return "Hello"
 
 # Ticket Status Table GET Method ALL
-@ticket_status.get("/get_all_ticketStatus/", response_model=list[TicketStatusRead], status_code=status.HTTP_200_OK)
+@ticket_status.get("/ticketStatus/", response_model=list[TicketStatusRead], status_code=status.HTTP_200_OK)
 async def read_all_ticketStatus(db: db_dependency):
     employee_ticketsStatus = db.query(TicketStatus).all()
     if not employee_ticketsStatus:
@@ -33,7 +33,7 @@ async def read_all_ticketStatus(db: db_dependency):
     return employee_ticketsStatus
 
 # Ticket Status Table GET Method
-@ticket_status.get("/get_ticketStatus_by_id/{ticketS_Id}", response_model=TicketStatusRead, status_code=status.HTTP_200_OK)
+@ticket_status.get("/ticketStatus/{ticketS_Id}", response_model=TicketStatusRead, status_code=status.HTTP_200_OK)
 async def read_ticketStatus(ticketS_Id: int, db: db_dependency):
     tickets = db.query(TicketStatus).filter(TicketStatus.Id == ticketS_Id).first()
     if tickets is None:
@@ -41,7 +41,7 @@ async def read_ticketStatus(ticketS_Id: int, db: db_dependency):
     return tickets
 
 # Roles Table POST Method
-@ticket_status.post("/add_ticketStatus/", response_model=TicketStatusRead, status_code=status.HTTP_201_CREATED)
+@ticket_status.post("/ticketStatus/", response_model=TicketStatusRead, status_code=status.HTTP_201_CREATED)
 async def create_ticketStatus(emp: TicketStatusCreate, db: db_dependency):
     db_post = TicketStatus(**emp.model_dump())
     db.add(db_post)
@@ -50,7 +50,7 @@ async def create_ticketStatus(emp: TicketStatusCreate, db: db_dependency):
     return db_post
 
 # Ticket Status Table DELETE Method
-@ticket_status.delete("/delete_ticketStatus_by_id/{ticketS_Id}", status_code=status.HTTP_200_OK)
+@ticket_status.delete("/ticketStatus/{ticketS_Id}", status_code=status.HTTP_200_OK)
 async def delete_ticketStatus(ticketS_Id: int, db: db_dependency):
     db_post = db.query(TicketStatus).filter(TicketStatus.Id == ticketS_Id).first()
     if db_post is None:
@@ -60,7 +60,7 @@ async def delete_ticketStatus(ticketS_Id: int, db: db_dependency):
     return "Ticket Status Deleted!"
 
 # Ticket Status Table EDIT Method
-@ticket_status.put("/edit_ticketStatus_by_id/{ticketS_Id}", response_model=TicketStatusRead, status_code=status.HTTP_200_OK)
+@ticket_status.put("/ticketStatus/{ticketS_Id}", response_model=TicketStatusRead, status_code=status.HTTP_200_OK)
 async def update_ticketStatus(ticketS_Id: int, updated_post: TicketStatusCreate, db: db_dependency):
     db_post = db.query(TicketStatus).filter(TicketStatus.Id == ticketS_Id).first()
     if db_post is None:

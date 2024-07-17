@@ -25,7 +25,7 @@ async def read():
     return "Hello"
 
 # Roles Table GET Method ALL
-@tickets.get("/get_all_tickets/", response_model=list[TicketsRead], status_code=status.HTTP_200_OK)
+@tickets.get("/ticket/", response_model=list[TicketsRead], status_code=status.HTTP_200_OK)
 async def read_all_tickets(db: db_dependency):
     employee_tickets = db.query(Tickets).all()
     if not employee_tickets:
@@ -33,7 +33,7 @@ async def read_all_tickets(db: db_dependency):
     return employee_tickets
 
 # Roles Table GET Method
-@tickets.get("/get_ticket_by_id/{ticket_Id}", response_model=TicketsRead, status_code=status.HTTP_200_OK)
+@tickets.get("/ticket/{ticket_Id}", response_model=TicketsRead, status_code=status.HTTP_200_OK)
 async def read_ticket(ticket_Id: int, db: db_dependency):
     tickets = db.query(Tickets).filter(Tickets.Id == ticket_Id).first()
     if tickets is None:
@@ -41,7 +41,7 @@ async def read_ticket(ticket_Id: int, db: db_dependency):
     return tickets
 
 # Roles Table POST Method
-@tickets.post("/add_ticket/", response_model=TicketsRead, status_code=status.HTTP_201_CREATED)
+@tickets.post("/ticket/", response_model=TicketsRead, status_code=status.HTTP_201_CREATED)
 async def create_ticket(emp: TicketsCreate, db: db_dependency):
     db_post = Tickets(**emp.model_dump())
     db.add(db_post)
@@ -50,7 +50,7 @@ async def create_ticket(emp: TicketsCreate, db: db_dependency):
     return db_post
 
 # Roles Table DELETE Method
-@tickets.delete("/delete_ticket_by_id/{ticket_Id}", status_code=status.HTTP_200_OK)
+@tickets.delete("/ticket/{ticket_Id}", status_code=status.HTTP_200_OK)
 async def delete_ticket(ticket_Id: int, db: db_dependency):
     db_post = db.query(Tickets).filter(Tickets.Id == ticket_Id).first()
     if db_post is None:
@@ -60,7 +60,7 @@ async def delete_ticket(ticket_Id: int, db: db_dependency):
     return "Tickets Deleted!"
 
 # Roles Table EDIT Method
-@tickets.put("/edit_ticket_by_id/{ticket_Id}", response_model=TicketsRead, status_code=status.HTTP_200_OK)
+@tickets.put("/ticket/{ticket_Id}", response_model=TicketsRead, status_code=status.HTTP_200_OK)
 async def update_ticket(ticket_Id: int, updated_post: TicketsCreate, db: db_dependency):
     db_post = db.query(Tickets).filter(Tickets.Id == ticket_Id).first()
     if db_post is None:
