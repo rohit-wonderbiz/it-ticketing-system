@@ -30,7 +30,7 @@ class Employees(Base):
     LastName = Column(String(50))
     Email = Column(String(50))    #foriegn key Setting Table(Id)
     Password = Column(String(50))
-    RoleId = Column(Integer , ForeignKey("Roles.Id" , ondelete = "CASCADE") , nullable=True )   #foriegn key Role Table(Id)
+    RoleId = Column(Integer , ForeignKey("Roles.Id" , ondelete = "NO ACTION") , nullable=True )   #foriegn key Role Table(Id)
     Manager1Id = Column(Integer, ForeignKey("Employees.Id" , ondelete = "NO ACTION"), nullable=True) #foriegn key Employees Table(Id)
     Manager2Id = Column(Integer, ForeignKey("Employees.Id" , ondelete = "NO ACTION"), nullable=True)
     CreatedAt = Column(DateTime(timezone=True), server_default=func.now())
