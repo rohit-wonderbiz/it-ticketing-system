@@ -8,8 +8,8 @@ from datetime import datetime
 class EmployeesBase(BaseModel):
     FirstName : str
     LastName : str
-    Email : str
-    Password : str
+    UserEmail : str
+    UserPassword : str
     RoleId : int
     Manager1Id : Optional[int] = None
     Manager2Id  : Optional[int] = None
@@ -29,8 +29,8 @@ class Employees(Base):
     Id = Column(Integer, primary_key=True, autoincrement=True)
     FirstName = Column(String(50))
     LastName = Column(String(50))
-    Email = Column(String(50))
-    Password = Column(String(50))
+    UserEmail = Column(String(50))
+    UserPassword = Column(String(50))
     RoleId = Column(Integer, ForeignKey("Roles.Id", ondelete="CASCADE"), nullable=True)
     Manager1Id = Column(Integer, ForeignKey('Employees.Id', ondelete="NO ACTION"), nullable=True)
     Manager2Id = Column(Integer, ForeignKey('Employees.Id', ondelete="NO ACTION"), nullable=True)
