@@ -26,7 +26,7 @@ class Tickets(Base):
     EmployeeId = Column(Integer , ForeignKey("Employees.Id", ondelete="NO ACTION") , nullable=True)
     TicketTitle = Column(String(50))
     Description = Column(String(300))
-    TicketStatusId = Column(Integer , ForeignKey("TicketStatus.Id",ondelete="NO ACTION") , nullable=True)
+    TicketStatusId = Column(Integer , ForeignKey("TicketStatus.Id",ondelete="NO ACTION"), default=1)
     PriorityId = Column(Integer , ForeignKey("TicketPriority.Id" , ondelete="NO ACTION"), nullable=True)
     CreatedAt = Column(DateTime(timezone=True), server_default=func.now())
     UpdatedAt = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())

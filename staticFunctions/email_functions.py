@@ -1,11 +1,9 @@
-# email_functions.py
-
 import smtplib
 import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-def send_email(receiver_email, subject, body):
+def send_email(receiver_email, subject, body, body_type="plain"):
     sender_email = "test1.wonderbiz@gmail.com"  # Replace with your email address
     password = "lnmgtmzpuhsubskx"  # Replace with your email password
 
@@ -15,11 +13,8 @@ def send_email(receiver_email, subject, body):
     message["From"] = sender_email
     message["To"] = receiver_email
 
-    # Create the plain-text version of your message
-    text = body
-
     # Turn the body into a MIMEText object
-    part = MIMEText(text, "plain")
+    part = MIMEText(body, body_type)
 
     # Attach the part into message container
     message.attach(part)
