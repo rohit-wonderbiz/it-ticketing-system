@@ -4,6 +4,7 @@ from typing import Optional
 from database import Base
 from pydantic import BaseModel , EmailStr
 from datetime import datetime
+from models.model_role import RoleRead
 
 class EmployeesBase(BaseModel):
     FirstName : str
@@ -14,9 +15,17 @@ class EmployeesBase(BaseModel):
     Manager1Id : Optional[int] = None
     Manager2Id  : Optional[int] = None
     Phone : int
+    role: RoleRead
 
-class EmployeesCreate(EmployeesBase):
-    pass
+class EmployeesCreate(BaseModel):
+    FirstName : str
+    LastName : str
+    UserEmail : EmailStr
+    UserPassword : str
+    RoleId : int
+    Manager1Id : Optional[int] = None
+    Manager2Id  : Optional[int] = None
+    Phone : int
 
 class EmployeesManagerRead(BaseModel):
     Id : int

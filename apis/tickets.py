@@ -53,6 +53,18 @@ async def read_ticket(ticket_Id: int, db: db_dependency):
 #     db.refresh(db_post)
 #     return db_post
 
+# get employees tickets(logs) for manager
+@tickets.get("/getEmpolyeeTickets/{manager_id}", response_model=list[TicketsRead], status_code=status.HTTP_200_OK)
+async def get_tickets_for_manager(manager_id: int, db: Session = Depends(get_db)):
+    # Query to fetch tickets where the employee's Manager1Id matches the provided manager_id
+    tickets = db.query(Tickets).join(Employees).filter(Employees.Manager1Id == manager_id).all()
+    
+    if not tickets:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No tickets found for this manager.")
+
+    return tickets
+
+
 @tickets.post("/ticket/", response_model=TicketsRead, status_code=status.HTTP_201_CREATED)
 async def create_ticket(emp: TicketsCreate, db: db_dependency):
     db_post = Tickets(**emp.model_dump())
