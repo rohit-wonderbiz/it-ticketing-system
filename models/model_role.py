@@ -23,3 +23,5 @@ class Roles(Base):
     Id = Column(Integer , primary_key=True , autoincrement=True)
     RoleCode = Column(String, default="default")
     RoleName = Column(String)
+
+    emp = relationship("Employees",back_populates='role')

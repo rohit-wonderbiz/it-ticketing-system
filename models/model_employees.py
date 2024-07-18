@@ -18,6 +18,11 @@ class EmployeesBase(BaseModel):
 class EmployeesCreate(EmployeesBase):
     pass
 
+class EmployeesManagerRead(BaseModel):
+    Id : int
+    UserEmail : EmailStr
+    FirstName : str
+
 class EmployeesRead(EmployeesBase):
     Id : int
     CreatedAt : datetime
@@ -37,3 +42,7 @@ class Employees(Base):
     CreatedAt = Column(DateTime(timezone=True), server_default=func.now())
     UpdatedAt = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
     Phone = Column(Integer , unique=True)
+
+    role = relationship("Roles",back_populates='emp')
+    manager1 = relationship("Employees", remote_side=[Id], backref='subordinates1', foreign_keys=[Manager1Id])
+    manager2 = relationship("Employees", remote_side=[Id], backref='subordinates2', foreign_keys=[Manager2Id])

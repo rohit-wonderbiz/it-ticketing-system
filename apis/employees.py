@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 from models.model_employees import Employees #Models
-from models.model_employees import EmployeesBase, EmployeesCreate, EmployeesRead #Pydantic model
+from models.model_employees import EmployeesBase, EmployeesCreate, EmployeesRead , EmployeesManagerRead #Pydantic model
 from database import SessionLocal
 
 employees = APIRouter()
@@ -24,6 +24,34 @@ db_dependency = Annotated[Session, Depends(get_db)]
 @employees.get("/", status_code=status.HTTP_200_OK)
 async def read():
     return "Hello"
+
+# get all manager Id , name , email
+# @employees.get("/getmanagername/", response_model=list[EmployeesManagerRead], status_code=status.HTTP_200_OK)
+# async def read_all_employee(db: db_dependency):
+#     manager_name = db.query(Employees).filter(Employees.RoleId == 1).all()
+#     return [
+#         EmployeesManagerRead(
+#             Id=employee.Id,
+#             UserEmail=employee.UserEmail,
+#             FirstName=employee.FirstName
+#         )
+#         for employee in manager_name
+    # ]
+
+# get all managers Id , email , FirstName 
+@employees.get("/getManager/", response_model=list[EmployeesManagerRead], status_code=status.HTTP_200_OK)
+async def read_all_manager(db: db_dependency):
+    managers = db.query(Employees).filter(Employees.RoleId == 1).all()
+    manager_details = [
+        EmployeesManagerRead(
+            Id=manager.Id,
+            UserEmail=manager.UserEmail,
+            FirstName=manager.FirstName,
+        )
+        for manager in managers
+    ]
+    return manager_details
+
 
 # Employees Table GET Method ALL
 @employees.get("/employee/", response_model=list[EmployeesRead], status_code=status.HTTP_200_OK)
