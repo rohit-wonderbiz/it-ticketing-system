@@ -19,6 +19,15 @@ class TicketsRead(TicketsBase):
     CreatedAt : datetime
     UpdatedAt : datetime
 
+#
+class TicketsUpdateStatus(BaseModel):
+    Id : int
+    EmployeeId : int
+    TicketTitle : str
+    Description : str
+    TicketStatusId : int
+    PriorityId : int
+
 class Tickets(Base):
     __tablename__ = "Tickets"
 

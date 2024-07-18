@@ -7,9 +7,9 @@ from models.model_tickets import Tickets #Models
 from models.model_employees import Employees
 from models.model_ticket_status import TicketStatus
 from models.model_ticket_priority import TicketPriority
-from models.model_tickets import TicketsBase, TicketsCreate, TicketsRead #Pydantic model
+from models.model_tickets import TicketsBase, TicketsCreate, TicketsRead, TicketsUpdateStatus #Pydantic model
 from database import SessionLocal
-from staticFunctions.email_functions import send_email
+from staticFunctions.email_functions import send_email, approve_ticket, deny_ticket
 
 tickets = APIRouter()
 
@@ -97,9 +97,61 @@ async def create_ticket(emp: TicketsCreate, db: db_dependency):
         ticket_priority = db.query(TicketPriority).filter(TicketPriority.Id == Tickets.PriorityId).first()
         ticket_priority_name = ticket_priority.PriorityName
 
+        # # New Ticket HTML email body
+        # email_body = f"""
+        # <html>
+        # <body>
+        #     <h2>New IT Ticket Created by {employee_name}</h2>
+        #     <p><strong>Ticket ID:</strong> {db_post.Id}</p>
+        #     <p><strong>Title:</strong> {db_post.TicketTitle}</p>
+        #     <p><strong>Description:</strong> {db_post.Description}</p>
+        #     <p><strong>Status:</strong> {ticket_status_name}</p>
+        #     <p><strong>Priority:</strong> {ticket_priority_name}</p>
+        # </body>
+        # </html>
+        # """
+        
         # New Ticket HTML email body
         email_body = f"""
         <html>
+        <head>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    margin: 20px;
+                    padding: 20px;
+                }}
+                h2 {{
+                    color: #333;
+                }}
+                strong {{
+                    font-weight: bold;
+                }}
+                .button-container {{
+                    margin-top: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-around;
+                }}
+                .button-container button {{
+                    background-color: #4CAF50; /* Green */
+                    border: none;
+                    color: white;
+                    padding: 10px 20px;
+                    text-align: center;
+                    text-decoration: none;
+                    display: inline-block;
+                    font-size: 16px;
+                    cursor: pointer;
+                    border-radius: 5px;
+                    margin-right: 10px;
+                }}
+                .button-container button:hover {{
+                    background-color: #45a049;
+                }}
+            </style>
+        </head>
         <body>
             <h2>New IT Ticket Created by {employee_name}</h2>
             <p><strong>Ticket ID:</strong> {db_post.Id}</p>
@@ -107,10 +159,17 @@ async def create_ticket(emp: TicketsCreate, db: db_dependency):
             <p><strong>Description:</strong> {db_post.Description}</p>
             <p><strong>Status:</strong> {ticket_status_name}</p>
             <p><strong>Priority:</strong> {ticket_priority_name}</p>
+            <div class="button-container">
+                <form action="http://127.0.0.1:8000/ticket/approve/{db_post.Id}" method="post">
+                    <button type="submit">Approve</button>
+                </form>
+                <form action="http://127.0.0.1:8000/ticket/deny/{db_post.Id}" method="post">
+                    <button type="submit">Deny</button>
+                </form>
+            </div>
         </body>
         </html>
         """
-
         send_email(manager_email, f"New IT Ticket Created by {employee_name}", email_body, body_type="html")
 
     except Exception as e:
@@ -141,3 +200,47 @@ async def update_ticket(ticket_Id: int, updated_post: TicketsCreate, db: db_depe
     db.commit()
     db.refresh(db_post)
     return db_post
+
+
+# # Approving a ticket (POST method)
+# @tickets.post("/ticket/approve/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
+# async def approve_ticket(ticket_id: int, db: Session = Depends(get_db)):
+#     ticket = db.query(Tickets).filter(Tickets.Id == ticket_id).first()
+#     if ticket is None:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Ticket {ticket_id} not found")
+
+#     ticket.TicketStatusId = 2  # Assuming TicketStatusId=2 means approved
+
+#     db.commit()
+#     db.refresh(ticket)
+
+#     # Send email IT officer
+
+#     return
+
+# @tickets.post("/ticket/deny/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
+# async def deny_ticket(ticket_id: int, db: Session = Depends(get_db)):
+#     ticket = db.query(Tickets).filter(Tickets.Id == ticket_id).first()
+#     if ticket is None:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Ticket {ticket_id} not found")
+
+#     ticket.TicketStatusId = 3  # Assuming TicketStatusId=3 means deny
+
+#     db.commit()
+#     db.refresh(ticket)
+
+#     # Send email IT officer
+
+#     return
+
+# Endpoint to approve a ticket
+@tickets.post("/ticket/approve/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def approve_ticket_endpoint(ticket_id: int, db: Session = Depends(get_db)):
+    approve_ticket(ticket_id, db)
+    return 'Ticket has been approved'
+
+# Endpoint to deny a ticket
+@tickets.post("/ticket/deny/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def deny_ticket_endpoint(ticket_id: int, db: Session = Depends(get_db)):
+    deny_ticket(ticket_id, db)
+    return
