@@ -51,6 +51,29 @@ async def read_ticket(ticket_Id: int, db: db_dependency):
 #     db.refresh(db_post)
 #     return db_post
 
+# # Roles Table POST Method
+# @tickets.post("/ticket/", response_model=TicketsRead, status_code=status.HTTP_201_CREATED)
+# async def create_ticket(emp: TicketsCreate, db: db_dependency):
+#     db_post = Tickets(**emp.model_dump())
+#     db.add(db_post)
+#     db.commit()
+#     db.refresh(db_post)
+
+#     # After successfully committing the ticket to the database, send an email
+#     try:
+#         # Fetch the employee email from the Employees table
+#         employee = db.query(Employees).filter(Employees.Id == db_post.EmployeeId).first()
+#         if employee is None:
+#             raise HTTPException(status_code=404, detail='Employee not found')
+
+#         emp_email = employee.UserEmail # Assuming the email attribute in Employees model is named 'email'
+#         print(emp_email)
+#         send_email(emp_email, "New Ticket Created", f"Ticket ID: {db_post.Id} has been created successfully.")
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+
+#     return db_post
+
 # Roles Table POST Method
 @tickets.post("/ticket/", response_model=TicketsRead, status_code=status.HTTP_201_CREATED)
 async def create_ticket(emp: TicketsCreate, db: db_dependency):
@@ -61,18 +84,24 @@ async def create_ticket(emp: TicketsCreate, db: db_dependency):
 
     # After successfully committing the ticket to the database, send an email
     try:
-        # Fetch the employee email from the Employees table
+        # Fetch the employee from the Employees table
         employee = db.query(Employees).filter(Employees.Id == db_post.EmployeeId).first()
         if employee is None:
             raise HTTPException(status_code=404, detail='Employee not found')
 
-        emp_email = employee.UserEmail # Assuming the email attribute in Employees model is named 'email'
-        print(emp_email)
-        send_email(emp_email, "New Ticket Created", f"Ticket ID: {db_post.Id} has been created successfully.")
+        # Fetch the manager's email using Manager1Id
+        manager = db.query(Employees).filter(Employees.Id == employee.Manager1Id).first()
+        if manager is None:
+            raise HTTPException(status_code=404, detail='Manager not found')
+
+        manager_email = manager.UserEmail # Assuming the email attribute in Employees model is named 'Email'
+        print(manager_email)
+        send_email(manager_email, "New Ticket Created", f"Ticket ID: {db_post.Id} has been created successfully.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
 
     return db_post
+
 
 # Roles Table DELETE Method
 @tickets.delete("/ticket/{ticket_Id}", status_code=status.HTTP_200_OK)
