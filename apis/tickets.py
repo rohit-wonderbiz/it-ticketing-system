@@ -7,7 +7,7 @@ from models.model_tickets import Tickets #Models
 from models.model_employees import Employees
 from models.model_ticket_status import TicketStatus
 from models.model_ticket_priority import TicketPriority
-from models.model_tickets import TicketsBase, TicketsCreate, TicketsRead, TicketsUpdateStatus #Pydantic model
+from schemas.schema_tickets import TicketsBase, TicketsCreate, TicketsRead, TicketsUpdateStatus #Pydantic model
 from database import SessionLocal
 from staticFunctions.email_functions import send_email, approve_ticket, deny_ticket
 

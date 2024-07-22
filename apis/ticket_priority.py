@@ -4,7 +4,7 @@ from typing import Annotated, Optional
 from sqlalchemy.orm import Session
 
 from models.model_ticket_priority import TicketPriority #Models
-from models.model_ticket_priority import TicketPriorityBase, TicketPriorityCreate, TicketPriorityRead #Pydantic model
+from schemas.schema_ticket_priority import TicketPriorityBase, TicketPriorityCreate, TicketPriorityRead #Pydantic model
 from database import SessionLocal
 
 ticket_priority = APIRouter()

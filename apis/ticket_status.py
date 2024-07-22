@@ -4,7 +4,7 @@ from typing import Annotated, Optional
 from sqlalchemy.orm import Session
 
 from models.model_ticket_status import TicketStatus #Models
-from models.model_ticket_status import TicketStatusBase, TicketStatusCreate, TicketStatusRead #Pydantic model
+from schemas.schema_ticket_status import TicketStatusBase, TicketStatusCreate, TicketStatusRead #Pydantic model
 from database import SessionLocal
 
 ticket_status = APIRouter()
