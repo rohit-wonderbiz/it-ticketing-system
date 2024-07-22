@@ -44,14 +44,6 @@ async def read_ticket(ticket_Id: int, db: db_dependency):
         raise HTTPException(status_code=404, detail='Ticket was not found')
     return tickets
 
-# # Tickets Table POST Method
-# @tickets.post("/ticket/", response_model=TicketsRead, status_code=status.HTTP_201_CREATED)
-# async def create_ticket(emp: TicketsCreate, db: db_dependency):
-#     db_post = Tickets(**emp.model_dump())
-#     db.add(db_post)
-#     db.commit()
-#     db.refresh(db_post)
-#     return db_post
 
 # get employees tickets(logs) for manager
 @tickets.get("/getEmpolyeeTickets/{manager_id}", response_model=list[TicketsRead], status_code=status.HTTP_200_OK)
@@ -64,7 +56,7 @@ async def get_tickets_for_manager(manager_id: int, db: Session = Depends(get_db)
 
     return tickets
 
-
+# Tickets Table POST Method
 @tickets.post("/ticket/", response_model=TicketsRead, status_code=status.HTTP_201_CREATED)
 async def create_ticket(emp: TicketsCreate, db: db_dependency):
     db_post = Tickets(**emp.model_dump())
@@ -96,20 +88,6 @@ async def create_ticket(emp: TicketsCreate, db: db_dependency):
         # Fetch the current ticket Priority
         ticket_priority = db.query(TicketPriority).filter(TicketPriority.Id == Tickets.PriorityId).first()
         ticket_priority_name = ticket_priority.PriorityName
-
-        # # New Ticket HTML email body
-        # email_body = f"""
-        # <html>
-        # <body>
-        #     <h2>New IT Ticket Created by {employee_name}</h2>
-        #     <p><strong>Ticket ID:</strong> {db_post.Id}</p>
-        #     <p><strong>Title:</strong> {db_post.TicketTitle}</p>
-        #     <p><strong>Description:</strong> {db_post.Description}</p>
-        #     <p><strong>Status:</strong> {ticket_status_name}</p>
-        #     <p><strong>Priority:</strong> {ticket_priority_name}</p>
-        # </body>
-        # </html>
-        # """
         
         # New Ticket HTML email body
         email_body = f"""
@@ -160,10 +138,10 @@ async def create_ticket(emp: TicketsCreate, db: db_dependency):
             <p><strong>Status:</strong> {ticket_status_name}</p>
             <p><strong>Priority:</strong> {ticket_priority_name}</p>
             <div class="button-container">
-                <form action="http://127.0.0.1:8000/ticket/approve/{db_post.Id}" method="post">
+                <form action="http://127.0.0.1:8000/ticket/approve/{db_post.Id}/{manager.Id}" method="post">
                     <button type="submit">Approve</button>
                 </form>
-                <form action="http://127.0.0.1:8000/ticket/deny/{db_post.Id}" method="post">
+                <form action="http://127.0.0.1:8000/ticket/deny/{db_post.Id}/{manager.Id}" method="post">
                     <button type="submit">Deny</button>
                 </form>
             </div>
@@ -201,46 +179,24 @@ async def update_ticket(ticket_Id: int, updated_post: TicketsCreate, db: db_depe
     db.refresh(db_post)
     return db_post
 
-
-# # Approving a ticket (POST method)
-# @tickets.post("/ticket/approve/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
-# async def approve_ticket(ticket_id: int, db: Session = Depends(get_db)):
-#     ticket = db.query(Tickets).filter(Tickets.Id == ticket_id).first()
-#     if ticket is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Ticket {ticket_id} not found")
-
-#     ticket.TicketStatusId = 2  # Assuming TicketStatusId=2 means approved
-
-#     db.commit()
-#     db.refresh(ticket)
-
-#     # Send email IT officer
-
-#     return
-
-# @tickets.post("/ticket/deny/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
-# async def deny_ticket(ticket_id: int, db: Session = Depends(get_db)):
-#     ticket = db.query(Tickets).filter(Tickets.Id == ticket_id).first()
-#     if ticket is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Ticket {ticket_id} not found")
-
-#     ticket.TicketStatusId = 3  # Assuming TicketStatusId=3 means deny
-
-#     db.commit()
-#     db.refresh(ticket)
-
-#     # Send email IT officer
-
-#     return
-
 # Endpoint to approve a ticket
-@tickets.post("/ticket/approve/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def approve_ticket_endpoint(ticket_id: int, db: Session = Depends(get_db)):
-    approve_ticket(ticket_id, db)
-    return 'Ticket has been approved'
+@tickets.post("/ticket/approve/{ticket_id}/{manager_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def approve_ticket_endpoint(ticket_id: int, manager_id: int, db: db_dependency):
+    approve_ticket(ticket_id, db, manager_id)
+    return {"message": "Ticket has been approved and IT officer, Employee has been notified."}
 
 # Endpoint to deny a ticket
-@tickets.post("/ticket/deny/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def deny_ticket_endpoint(ticket_id: int, db: Session = Depends(get_db)):
-    deny_ticket(ticket_id, db)
-    return
+@tickets.post("/ticket/deny/{ticket_id}/{manager_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def deny_ticket_endpoint(ticket_id: int, manager_id: int, db: db_dependency):
+    deny_ticket(ticket_id, db, manager_id)
+    return {"message": "Ticket has been denied and Employee has been notified."}
+
+# @tickets.post('/ticket/{ticket_id}/message', tags=["Tickets"])
+# def send_ticket_messages(ticket_id: int, message_request: MessageRequest, db: Session = Depends(get_db)):
+#     try:
+#         send_ticket_message(ticket_id, db, message_request.sender_id, message_request.message)
+#         return {"message": "Message sent successfully"}
+#     except HTTPException as e:
+#         raise HTTPException(status_code=e.status_code, detail=e.detail)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
