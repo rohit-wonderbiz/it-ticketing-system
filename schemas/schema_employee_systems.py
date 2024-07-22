@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from schemas.schema_tickets import TicketsRead
 
 class EmployeeSystemsBase(BaseModel):
     EmployeeId : int
@@ -19,3 +20,7 @@ class EmployeeSystemsRead(EmployeeSystemsBase):
 
     class Config():
         from_attributes = True
+
+class TicketWithEmployeeSystems(BaseModel):
+    ticket: TicketsRead
+    employee_systems: EmployeeSystemsRead

@@ -9,6 +9,10 @@ from models.model_ticket_status import TicketStatus
 from models.model_ticket_priority import TicketPriority
 from schemas.schema_tickets import TicketsBase, TicketsCreate, TicketsRead, TicketsUpdateStatus #Pydantic model
 from database import SessionLocal
+
+from schemas.schema_employee_systems import TicketWithEmployeeSystems
+from models.model_employee_systems import EmployeeSystems
+
 from staticFunctions.email_functions import send_email, approve_ticket, deny_ticket
 
 tickets = APIRouter()
@@ -191,12 +195,38 @@ async def deny_ticket_endpoint(ticket_id: int, manager_id: int, db: db_dependenc
     deny_ticket(ticket_id, db, manager_id)
     return {"message": "Ticket has been denied and Employee has been notified."}
 
-# @tickets.post('/ticket/{ticket_id}/message', tags=["Tickets"])
-# def send_ticket_messages(ticket_id: int, message_request: MessageRequest, db: Session = Depends(get_db)):
-#     try:
-#         send_ticket_message(ticket_id, db, message_request.sender_id, message_request.message)
-#         return {"message": "Message sent successfully"}
-#     except HTTPException as e:
-#         raise HTTPException(status_code=e.status_code, detail=e.detail)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+
+
+@tickets.get("/tickets-with-employee-systems", response_model=list[TicketWithEmployeeSystems], status_code=status.HTTP_200_OK)
+async def read_all_tickets_with_employee_systems(db: Session = Depends(get_db)):
+    tickets = db.query(Tickets).all()
+    if not tickets:
+        raise HTTPException(status_code=404, detail='No Ticket was found')
+
+    tickets_with_employee_systems = []
+    for ticket in tickets:
+        employee_systems = db.query(EmployeeSystems).filter(EmployeeSystems.EmployeeId == ticket.EmployeeId).first()
+        if not employee_systems:
+            raise HTTPException(status_code=404, detail=f'Employee systems not found for ticket ID {ticket.Id}')
+        
+        tickets_with_employee_systems.append({
+            "ticket": ticket,
+            "employee_systems": employee_systems
+        })
+
+    return tickets_with_employee_systems
+
+@tickets.get("/tickets/{ticket_id}/employee-systems", response_model=TicketWithEmployeeSystems)
+def get_ticket_with_employee_systems(ticket_id: int, db: Session = Depends(get_db)):
+    ticket = db.query(Tickets).filter(Tickets.Id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    employee_systems = db.query(EmployeeSystems).filter(EmployeeSystems.EmployeeId == ticket.EmployeeId).first()
+    if not employee_systems:
+        raise HTTPException(status_code=404, detail="Employee systems not found")
+
+    return {
+        "ticket": ticket,
+        "employee_systems": employee_systems
+    }
