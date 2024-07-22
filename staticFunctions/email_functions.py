@@ -209,54 +209,30 @@ def notify_employee(ticket_id: int, db: Session, manager_id: int):
 
 
 # Function to send communication messages
-# def send_ticket_message(ticket_id: int, db: Session, sender_id: int, message: str):
-#     ticket = db.query(Tickets).filter(Tickets.Id == ticket_id).first()
-#     if ticket is None:
-#         raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
+# def send_email_notification(message: Messages, db: Session):
+#     sender = db.query(Employees).filter(Employees.Id == message.SenderId).first()
+#     ticket = db.query(Tickets).filter(Tickets.Id == message.TicketId).first()
 
-#     sender = db.query(Employees).filter(Employees.Id == sender_id).first()
-#     if sender is None:
-#         raise HTTPException(status_code=404, detail=f"Sender {sender_id} not found")
-
-#     if sender.RoleId == 3:  # IT Officer
+#     if sender.RoleId == 3:  # Assuming RoleId=3 is IT officer
 #         receiver = db.query(Employees).filter(Employees.Id == ticket.EmployeeId).first()
 #     else:
 #         receiver = db.query(Employees).filter(Employees.RoleId == 3).first()
 
-#     if receiver is None:
-#         raise HTTPException(status_code=404, detail=f"Receiver not found")
+#     if not receiver:
+#         raise HTTPException(status_code=404, detail="Receiver not found")
 
 #     sender_name = f"{sender.FirstName} {sender.LastName}"
 #     receiver_email = receiver.UserEmail
-
 #     email_body = f"""
 #     <html>
-#     <head>
-#         <style>
-#             body {{
-#                 font-family: Arial, sans-serif;
-#                 line-height: 1.6;
-#                 margin: 20px;
-#                 padding: 20px;
-#             }}
-#             h2 {{
-#                 color: #333;
-#             }}
-#             strong {{
-#                 font-weight: bold;
-#             }}
-#         </style>
-#     </head>
 #     <body>
-#         <h2>New Message Regarding Ticket ID: {ticket.Id}</h2>
 #         <p><strong>From:</strong> {sender_name}</p>
-#         <p><strong>Message:</strong></p>
-#         <p>{message}</p>
+#         <p><strong>Message:</strong> {message.Message}</p>
 #     </body>
 #     </html>
 #     """
 
-#     send_email(receiver_email, f"New Message from {sender_name}", email_body, body_type="html")
+#     send_email(receiver_email, f"New Message on Ticket {message.TicketId}", email_body, body_type="html")
 
 def send_email_notification(message: Messages, db: Session):
     sender = db.query(Employees).filter(Employees.Id == message.SenderId).first()
@@ -270,6 +246,11 @@ def send_email_notification(message: Messages, db: Session):
     if not receiver:
         raise HTTPException(status_code=404, detail="Receiver not found")
 
+    # Fetch additional ticket details
+    ticket_status = db.query(TicketStatus).filter(TicketStatus.Id == ticket.TicketStatusId).first()
+    ticket_priority = db.query(TicketPriority).filter(TicketPriority.Id == ticket.PriorityId).first()
+
+    # Construct email body with additional ticket details
     sender_name = f"{sender.FirstName} {sender.LastName}"
     receiver_email = receiver.UserEmail
     email_body = f"""
@@ -277,8 +258,14 @@ def send_email_notification(message: Messages, db: Session):
     <body>
         <p><strong>From:</strong> {sender_name}</p>
         <p><strong>Message:</strong> {message.Message}</p>
+        <p><strong>Ticket ID:</strong> {ticket.Id}</p>
+        <p><strong>Title:</strong> {ticket.TicketTitle}</p>
+        <p><strong>Description:</strong> {ticket.Description}</p>
+        <p><strong>Status:</strong> {ticket_status.Status}</p>
+        <p><strong>Priority:</strong> {ticket_priority.PriorityName}</p>
     </body>
     </html>
     """
 
     send_email(receiver_email, f"New Message on Ticket {message.TicketId}", email_body, body_type="html")
+
