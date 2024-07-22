@@ -4,7 +4,7 @@ from typing import Annotated, Optional
 from sqlalchemy.orm import Session
 
 from models.model_role import Roles #Models
-from models.model_role import Roles, RoleCreate, RoleRead #Pydantic model
+from schemas.schema_role import RolesBase, RoleCreate, RoleRead #Pydantic model
 from database import SessionLocal
 
 roles = APIRouter()
