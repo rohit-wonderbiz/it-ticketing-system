@@ -4,8 +4,8 @@ from typing import Annotated, Optional
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from models.model_employee_systems import EmployeeSystems #Models
-from models.model_employee_systems import EmployeeSystemsBase, EmployeeSystemsCreate, EmployeeSystemsRead #Pydantic model
+from models.model_employee_systems import EmployeeSystems #Table Models
+from schemas.schema_employee_systems import EmployeeSystemsBase, EmployeeSystemsCreate, EmployeeSystemsRead #Pydantic model
 from database import SessionLocal
 
 employee_systems = APIRouter()

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 from models.model_employees import Employees #Models
-from models.model_employees import EmployeesBase, EmployeesCreate, EmployeesRead , EmployeesManagerRead #Pydantic model
+from schemas.schema_employees import EmployeesBase, EmployeesCreate, EmployeesRead , EmployeesManagerRead #Pydantic model
 from database import SessionLocal
 
 employees = APIRouter()
