@@ -11,5 +11,3 @@ class Messages(Base):
     Message = Column(String, nullable=False)
     Timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
-    # sender = relationship("Employees", foreign_keys=[SenderId])
-    # ticket = relationship("Tickets", foreign_keys=[TicketId])
