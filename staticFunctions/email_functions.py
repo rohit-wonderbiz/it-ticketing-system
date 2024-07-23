@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from models.model_tickets import Tickets
 from models.model_employees import Employees
+from models.model_employee_systems import EmployeeSystems
 from models.model_ticket_status import TicketStatus
 from models.model_ticket_priority import TicketPriority
 from models.model_messages import Messages
@@ -66,6 +67,9 @@ def notify_ticket(ticket_id: int, db: Session, manager_id: int):
     manager = db.query(Employees).filter(Employees.Id == manager_id).first()
     if manager is None:
         raise HTTPException(status_code=404, detail=f"Manager {manager_id} not found")
+    
+    # Fetch the employee system details
+    employee_system = db.query(EmployeeSystems).filter(ticket.EmployeeId == EmployeeSystems.EmployeeId).first()
 
     employee_name = f"{employee.FirstName} {employee.LastName}"
     manager_name = f"{manager.FirstName} {manager.LastName}"
@@ -124,6 +128,12 @@ def notify_ticket(ticket_id: int, db: Session, manager_id: int):
         <p><strong>Description:</strong> {ticket.Description}</p>
         <p><strong>Status:</strong> {ticket_status_name}</p>
         <p><strong>Priority:</strong> {ticket_priority_name}</p>
+        <h3>Your System Details</h3>
+        <p><strong>System No:</strong> {employee_system.SystemNo}</p>
+        <p><strong>Vendor name:</strong> {employee_system.Vendor}</p>
+        <p><strong>Ram Capacity:</strong> {employee_system.RamCapacity}</p>
+        <p><strong>Disk 1 Capacity:</strong> {employee_system.Disk1Capacity}</p>
+        <p><strong>Disk 2 Capacity:</strong> {employee_system.Disk2Capacity}</p>
         <div class="button-container">
             <form action="http://127.0.0.1:8000/ticket/close/{ticket.Id}/{manager.Id}" method="post">
                 <button type="submit">Close Ticket</button>
@@ -162,6 +172,12 @@ def notify_ticket(ticket_id: int, db: Session, manager_id: int):
         <p><strong>Description:</strong> {ticket.Description}</p>
         <p><strong>Status:</strong> {ticket_status_name}</p>
         <p><strong>Priority:</strong> {ticket_priority_name}</p>
+        <h3>Employee System Details</h3>
+        <p><strong>System No:</strong> {employee_system.SystemNo}</p>
+        <p><strong>Vendor name:</strong> {employee_system.Vendor}</p>
+        <p><strong>Ram Capacity:</strong> {employee_system.RamCapacity}</p>
+        <p><strong>Disk 1 Capacity:</strong> {employee_system.Disk1Capacity}</p>
+        <p><strong>Disk 2 Capacity:</strong> {employee_system.Disk2Capacity}</p>
     </body>
     </html>
     """
@@ -202,6 +218,9 @@ def notify_employee(ticket_id: int, db: Session, manager_id: int):
     ticket_priority = db.query(TicketPriority).filter(TicketPriority.Id == ticket.PriorityId).first()
     ticket_priority_name = ticket_priority.PriorityName
 
+    # Fetch the employee system details
+    employee_system = db.query(EmployeeSystems).filter(ticket.EmployeeId == EmployeeSystems.EmployeeId).first()
+
     email_body = f"""
     <html>
     <head>
@@ -229,6 +248,12 @@ def notify_employee(ticket_id: int, db: Session, manager_id: int):
         <p><strong>Description:</strong> {ticket.Description}</p>
         <p><strong>Status:</strong> {ticket_status_name}</p>
         <p><strong>Priority:</strong> {ticket_priority_name}</p>
+        <h3>Employee System Details</h3>
+        <p><strong>System No:</strong> {employee_system.SystemNo}</p>
+        <p><strong>Vendor name:</strong> {employee_system.Vendor}</p>
+        <p><strong>Ram Capacity:</strong> {employee_system.RamCapacity}</p>
+        <p><strong>Disk 1 Capacity:</strong> {employee_system.Disk1Capacity}</p>
+        <p><strong>Disk 2 Capacity:</strong> {employee_system.Disk2Capacity}</p>
     </body>
     </html>
     """
@@ -237,31 +262,6 @@ def notify_employee(ticket_id: int, db: Session, manager_id: int):
 
 
 # Function to send communication messages
-# def send_email_notification(message: Messages, db: Session):
-#     sender = db.query(Employees).filter(Employees.Id == message.SenderId).first()
-#     ticket = db.query(Tickets).filter(Tickets.Id == message.TicketId).first()
-
-#     if sender.RoleId == 3:  # Assuming RoleId=3 is IT officer
-#         receiver = db.query(Employees).filter(Employees.Id == ticket.EmployeeId).first()
-#     else:
-#         receiver = db.query(Employees).filter(Employees.RoleId == 3).first()
-
-#     if not receiver:
-#         raise HTTPException(status_code=404, detail="Receiver not found")
-
-#     sender_name = f"{sender.FirstName} {sender.LastName}"
-#     receiver_email = receiver.UserEmail
-#     email_body = f"""
-#     <html>
-#     <body>
-#         <p><strong>From:</strong> {sender_name}</p>
-#         <p><strong>Message:</strong> {message.Message}</p>
-#     </body>
-#     </html>
-#     """
-
-#     send_email(receiver_email, f"New Message on Ticket {message.TicketId}", email_body, body_type="html")
-
 def send_email_notification(message: Messages, db: Session):
     sender = db.query(Employees).filter(Employees.Id == message.SenderId).first()
     ticket = db.query(Tickets).filter(Tickets.Id == message.TicketId).first()
@@ -278,6 +278,9 @@ def send_email_notification(message: Messages, db: Session):
     ticket_status = db.query(TicketStatus).filter(TicketStatus.Id == ticket.TicketStatusId).first()
     ticket_priority = db.query(TicketPriority).filter(TicketPriority.Id == ticket.PriorityId).first()
 
+    # Fetch the employee system details
+    employee_system = db.query(EmployeeSystems).filter(ticket.EmployeeId == EmployeeSystems.EmployeeId).first()
+
     # Construct email body with additional ticket details
     sender_name = f"{sender.FirstName} {sender.LastName}"
     receiver_email = receiver.UserEmail
@@ -291,6 +294,12 @@ def send_email_notification(message: Messages, db: Session):
         <p><strong>Description:</strong> {ticket.Description}</p>
         <p><strong>Status:</strong> {ticket_status.Status}</p>
         <p><strong>Priority:</strong> {ticket_priority.PriorityName}</p>
+        <h3>Employee System Details</h3>
+        <p><strong>System No:</strong> {employee_system.SystemNo}</p>
+        <p><strong>Vendor name:</strong> {employee_system.Vendor}</p>
+        <p><strong>Ram Capacity:</strong> {employee_system.RamCapacity}</p>
+        <p><strong>Disk 1 Capacity:</strong> {employee_system.Disk1Capacity}</p>
+        <p><strong>Disk 2 Capacity:</strong> {employee_system.Disk2Capacity}</p>
     </body>
     </html>
     """

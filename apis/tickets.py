@@ -86,12 +86,15 @@ async def create_ticket(emp: TicketsCreate, db: db_dependency):
         employee_name = str(employee.FirstName + " " + employee.LastName)
 
         # Fetch the current ticket status
-        ticket_status = db.query(TicketStatus).filter(TicketStatus.Id == Tickets.TicketStatusId).first()
+        ticket_status = db.query(TicketStatus).filter(TicketStatus.Id == db_post.TicketStatusId).first()
         ticket_status_name = ticket_status.Status
 
         # Fetch the current ticket Priority
-        ticket_priority = db.query(TicketPriority).filter(TicketPriority.Id == Tickets.PriorityId).first()
+        ticket_priority = db.query(TicketPriority).filter(TicketPriority.Id == db_post.PriorityId).first()
         ticket_priority_name = ticket_priority.PriorityName
+
+        # Fetch the employee system details
+        employee_system = db.query(EmployeeSystems).filter(db_post.EmployeeId == EmployeeSystems.EmployeeId).first()
         
         # New Ticket HTML email body
         email_body = f"""
@@ -141,6 +144,12 @@ async def create_ticket(emp: TicketsCreate, db: db_dependency):
             <p><strong>Description:</strong> {db_post.Description}</p>
             <p><strong>Status:</strong> {ticket_status_name}</p>
             <p><strong>Priority:</strong> {ticket_priority_name}</p>
+            <h3>Employee System Details</h3>
+            <p><strong>System No:</strong> {employee_system.SystemNo}</p>
+            <p><strong>Vendor name:</strong> {employee_system.Vendor}</p>
+            <p><strong>Ram Capacity:</strong> {employee_system.RamCapacity}</p>
+            <p><strong>Disk 1 Capacity:</strong> {employee_system.Disk1Capacity}</p>
+            <p><strong>Disk 2 Capacity:</strong> {employee_system.Disk2Capacity}</p>
             <div class="button-container">
                 <form action="http://127.0.0.1:8000/ticket/approve/{db_post.Id}/{manager.Id}" method="post">
                     <button type="submit">Approve</button>
@@ -231,8 +240,6 @@ def get_ticket_with_employee_systems(ticket_id: int, db: Session = Depends(get_d
         "employee_systems": employee_systems
     }
 
-####
-
 # Endpoint to close a ticket
 @tickets.post("/ticket/close/{ticket_id}/{manager_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def close_ticket_endpoint(ticket_id: int, manager_id: int, db: db_dependency):
@@ -255,6 +262,9 @@ async def close_ticket_endpoint(ticket_id: int, manager_id: int, db: db_dependen
     
     # Fetch the employee name
     employee_name = str(employee.FirstName + " " + employee.LastName)
+
+    # Fetch the employee system details
+    employee_system = db.query(EmployeeSystems).filter(ticket.EmployeeId == EmployeeSystems.EmployeeId).first()
 
     # Fetch the current ticket status
     ticket_status = db.query(TicketStatus).filter(TicketStatus.Id == ticket.TicketStatusId).first()
@@ -308,6 +318,12 @@ async def close_ticket_endpoint(ticket_id: int, manager_id: int, db: db_dependen
                 <p><strong>Title:</strong> {ticket.TicketTitle}</p>
                 <p><strong>Description:</strong> {ticket.Description}</p>
                 <p><strong>Status:</strong> {ticket_status_name}</p>
+                <h3>Employee System Details</h3>
+                <p><strong>System No:</strong> {employee_system.SystemNo}</p>
+                <p><strong>Vendor name:</strong> {employee_system.Vendor}</p>
+                <p><strong>Ram Capacity:</strong> {employee_system.RamCapacity}</p>
+                <p><strong>Disk 1 Capacity:</strong> {employee_system.Disk1Capacity}</p>
+                <p><strong>Disk 2 Capacity:</strong> {employee_system.Disk2Capacity}</p>
                 <div class="button-container">
                     <form action="http://127.0.0.1:8000/ticket/confirm_close/{ticket.Id}/{manager_id}" method="post">
                         <button type="submit">Yes</button>
@@ -344,6 +360,9 @@ async def confirm_close(ticket_id: int, manager_id: int, db: db_dependency):
     employee = db.query(Employees).filter(Employees.Id == ticket.EmployeeId).first()
     if not employee:
         raise HTTPException(status_code=404, detail="Employee not found")
+    
+    # Fetch the employee system details
+    employee_system = db.query(EmployeeSystems).filter(ticket.EmployeeId == EmployeeSystems.EmployeeId).first()
 
     # Notify the employee
     employee_email = employee.UserEmail
@@ -395,6 +414,12 @@ async def confirm_close(ticket_id: int, manager_id: int, db: db_dependency):
         <p><strong>Title:</strong> {ticket.TicketTitle}</p>
         <p><strong>Description:</strong> {ticket.Description}</p>
         <p><strong>Status:</strong> {ticket_status_name}</p>
+        <h3>Employee System Details</h3>
+        <p><strong>System No:</strong> {employee_system.SystemNo}</p>
+        <p><strong>Vendor name:</strong> {employee_system.Vendor}</p>
+        <p><strong>Ram Capacity:</strong> {employee_system.RamCapacity}</p>
+        <p><strong>Disk 1 Capacity:</strong> {employee_system.Disk1Capacity}</p>
+        <p><strong>Disk 2 Capacity:</strong> {employee_system.Disk2Capacity}</p>
     </body>
     </html>
     """
@@ -455,6 +480,12 @@ async def confirm_close(ticket_id: int, manager_id: int, db: db_dependency):
         <p><strong>Title:</strong> {ticket.TicketTitle}</p>
         <p><strong>Description:</strong> {ticket.Description}</p>
         <p><strong>Status:</strong> {ticket_status_name}</p>
+        <h3>Employee System Details</h3>
+        <p><strong>System No:</strong> {employee_system.SystemNo}</p>
+        <p><strong>Vendor name:</strong> {employee_system.Vendor}</p>
+        <p><strong>Ram Capacity:</strong> {employee_system.RamCapacity}</p>
+        <p><strong>Disk 1 Capacity:</strong> {employee_system.Disk1Capacity}</p>
+        <p><strong>Disk 2 Capacity:</strong> {employee_system.Disk2Capacity}</p>
     </body>
     </html>
     """
@@ -477,6 +508,9 @@ async def reopen(ticket_id: int, manager_id: int, db: db_dependency):
     # Fetch the current ticket status
     ticket_status = db.query(TicketStatus).filter(TicketStatus.Id == ticket.TicketStatusId).first()
     ticket_status_name = ticket_status.Status
+
+    # Fetch the employee system details
+    employee_system = db.query(EmployeeSystems).filter(ticket.EmployeeId == EmployeeSystems.EmployeeId).first()
 
     # Notify the IT officer
     it_officer = db.query(Employees).filter(Employees.RoleId == 3).first()
@@ -532,6 +566,12 @@ async def reopen(ticket_id: int, manager_id: int, db: db_dependency):
         <p><strong>Title:</strong> {ticket.TicketTitle}</p>
         <p><strong>Description:</strong> {ticket.Description}</p>
         <p><strong>Status:</strong> {ticket_status_name}</p>
+        <h3>Employee System Details</h3>
+        <p><strong>System No:</strong> {employee_system.SystemNo}</p>
+        <p><strong>Vendor name:</strong> {employee_system.Vendor}</p>
+        <p><strong>Ram Capacity:</strong> {employee_system.RamCapacity}</p>
+        <p><strong>Disk 1 Capacity:</strong> {employee_system.Disk1Capacity}</p>
+        <p><strong>Disk 2 Capacity:</strong> {employee_system.Disk2Capacity}</p>
     </body>
     </html>
     """    
