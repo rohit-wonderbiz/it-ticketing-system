@@ -91,6 +91,28 @@ def notify_ticket(ticket_id: int, db: Session, manager_id: int):
             strong {{
                 font-weight: bold;
             }}
+            .button-container {{
+                margin-top: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+            }}
+            .button-container button {{
+                background-color: #4CAF50; /* Green */
+                border: none;
+                color: white;
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                cursor: pointer;
+                border-radius: 5px;
+                margin-right: 10px;
+            }}
+            .button-container button:hover {{
+                background-color: #45a049;
+            }}
         </style>
     </head>
     <body>
@@ -102,9 +124,15 @@ def notify_ticket(ticket_id: int, db: Session, manager_id: int):
         <p><strong>Description:</strong> {ticket.Description}</p>
         <p><strong>Status:</strong> {ticket_status_name}</p>
         <p><strong>Priority:</strong> {ticket_priority_name}</p>
+        <div class="button-container">
+            <form action="http://127.0.0.1:8000/ticket/close/{ticket.Id}/{manager.Id}" method="post">
+                <button type="submit">Close Ticket</button>
+            </form>
+        </div>
     </body>
     </html>
     """
+
 
     send_email(it_officer.UserEmail, f"New IT Ticket Approved by {manager_name}", email_body, body_type="html")
     

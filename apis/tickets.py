@@ -230,3 +230,312 @@ def get_ticket_with_employee_systems(ticket_id: int, db: Session = Depends(get_d
         "ticket": ticket,
         "employee_systems": employee_systems
     }
+
+####
+
+# Endpoint to close a ticket
+@tickets.post("/ticket/close/{ticket_id}/{manager_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def close_ticket_endpoint(ticket_id: int, manager_id: int, db: db_dependency):
+    # Fetch the ticket
+    ticket = db.query(Tickets).filter(Tickets.Id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    # Fetch the manager
+    manager = db.query(Employees).filter(Employees.Id == manager_id).first()
+    if not manager:
+        raise HTTPException(status_code=404, detail="Manager not found")
+
+    manager_email = manager.UserEmail  # Assuming the email attribute in Employees model is named 'Email'
+    
+    # Fetch the employee from the Employees table
+    employee = db.query(Employees).filter(Employees.Id == Tickets.EmployeeId).first()
+    if employee is None:
+        raise HTTPException(status_code=404, detail='Employee not found')
+    
+    # Fetch the employee name
+    employee_name = str(employee.FirstName + " " + employee.LastName)
+
+    # Fetch the current ticket status
+    ticket_status = db.query(TicketStatus).filter(TicketStatus.Id == ticket.TicketStatusId).first()
+    ticket_status_name = ticket_status.Status
+
+    # Send email to manager to confirm if the issue is solved
+    manager_email = manager.UserEmail
+    email_body = f"""
+            <html>
+            <head>
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        margin: 20px;
+                        padding: 20px;
+                    }}
+                    h2 {{
+                        color: #333;
+                    }}
+                    strong {{
+                        font-weight: bold;
+                    }}
+                    .button-container {{
+                        margin-top: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-around;
+                    }}
+                    .button-container button {{
+                        background-color: #4CAF50; /* Green */
+                        border: none;
+                        color: white;
+                        padding: 10px 20px;
+                        text-align: center;
+                        text-decoration: none;
+                        display: inline-block;
+                        font-size: 16px;
+                        cursor: pointer;
+                        border-radius: 5px;
+                        margin-right: 10px;
+                    }}
+                    .button-container button:hover {{
+                        background-color: #45a049;
+                    }}
+                </style>
+            </head>
+            <body>
+                <h2>Is the issue for ticket ID {ticket.Id} solved?</h2>
+                <p><strong>Ticket ID:</strong> {ticket.Id}</p>
+                <p><strong>Title:</strong> {ticket.TicketTitle}</p>
+                <p><strong>Description:</strong> {ticket.Description}</p>
+                <p><strong>Status:</strong> {ticket_status_name}</p>
+                <div class="button-container">
+                    <form action="http://127.0.0.1:8000/ticket/confirm_close/{ticket.Id}/{manager_id}" method="post">
+                        <button type="submit">Yes</button>
+                    </form>
+                    <form action="http://127.0.0.1:8000/ticket/reopen/{ticket.Id}/{manager_id}" method="post">
+                        <button type="submit">No</button>
+                    </form>
+                </div>
+            </body>
+            </html>
+            """
+
+    send_email(manager_email, "Confirm Ticket Closure", email_body, body_type="html")
+    return {"message": "Confirmation email sent to the manager."}
+
+
+# Endpoint to confirm ticket closure
+@tickets.post("/ticket/confirm_close/{ticket_id}/{manager_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def confirm_close(ticket_id: int, manager_id: int, db: db_dependency):
+    # Fetch the ticket
+    ticket = db.query(Tickets).filter(Tickets.Id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    # Update the ticket status to closed
+    ticket.TicketStatusId = 4  # Assuming 4 is the status ID for 'Closed'
+    db.commit()
+
+    # Fetch the current ticket status
+    ticket_status = db.query(TicketStatus).filter(TicketStatus.Id == ticket.TicketStatusId).first()
+    ticket_status_name = ticket_status.Status
+
+    # Fetch the employee
+    employee = db.query(Employees).filter(Employees.Id == ticket.EmployeeId).first()
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    # Notify the employee
+    employee_email = employee.UserEmail
+
+    # Confirm Close Ticket HTML email body for employee
+    email_body = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                margin: 20px;
+                padding: 20px;
+            }}
+            h2 {{
+                color: #333;
+            }}
+            strong {{
+                font-weight: bold;
+            }}
+            .button-container {{
+                margin-top: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+            }}
+            .button-container button {{
+                background-color: #4CAF50; /* Green */
+                border: none;
+                color: white;
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                cursor: pointer;
+                border-radius: 5px;
+                margin-right: 10px;
+            }}
+            .button-container button:hover {{
+                background-color: #45a049;
+            }}
+        </style>
+    </head>
+    <body>
+        <h2>Your ticket ID {ticket.Id} has been closed.</h2>
+        <p><strong>Ticket ID:</strong> {ticket.Id}</p>
+        <p><strong>Title:</strong> {ticket.TicketTitle}</p>
+        <p><strong>Description:</strong> {ticket.Description}</p>
+        <p><strong>Status:</strong> {ticket_status_name}</p>
+    </body>
+    </html>
+    """
+
+    send_email(employee_email, "Ticket Closed", email_body, body_type="html")
+    
+    # Notify the employee and IT officer
+    it_officer = db.query(Employees).filter(Employees.RoleId == 3).first()
+    if it_officer is None:
+        raise HTTPException(status_code=404, detail="IT Officer not found")
+
+    it_officer_email = it_officer.UserEmail  # Replace with actual IT officer email
+
+    # Confirm Ticket HTML email body for IT officer
+    email_body = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                margin: 20px;
+                padding: 20px;
+            }}
+            h2 {{
+                color: #333;
+            }}
+            strong {{
+                font-weight: bold;
+            }}
+            .button-container {{
+                margin-top: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+            }}
+            .button-container button {{
+                background-color: #4CAF50; /* Green */
+                border: none;
+                color: white;
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                cursor: pointer;
+                border-radius: 5px;
+                margin-right: 10px;
+            }}
+            .button-container button:hover {{
+                background-color: #45a049;
+            }}
+        </style>
+    </head>
+    <body>
+        <h2>Ticket ID {ticket.Id} has been closed.</h2>
+        <p><strong>Ticket ID:</strong> {ticket.Id}</p>
+        <p><strong>Title:</strong> {ticket.TicketTitle}</p>
+        <p><strong>Description:</strong> {ticket.Description}</p>
+        <p><strong>Status:</strong> {ticket_status_name}</p>
+    </body>
+    </html>
+    """
+    send_email(it_officer_email, "Ticket Closed", email_body, body_type="html")
+
+    return {"message": "Ticket has been closed and notifications sent."}
+
+# Endpoint to reopen a ticket
+@tickets.post("/ticket/reopen/{ticket_id}/{manager_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def reopen(ticket_id: int, manager_id: int, db: db_dependency):
+    # Fetch the ticket
+    ticket = db.query(Tickets).filter(Tickets.Id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    # Keep the ticket status approve (not closed) as needed
+    ticket.TicketStatusId = 2  # Assuming 2 is the status ID for 'approve'
+    db.commit()
+
+    # Fetch the current ticket status
+    ticket_status = db.query(TicketStatus).filter(TicketStatus.Id == ticket.TicketStatusId).first()
+    ticket_status_name = ticket_status.Status
+
+    # Notify the IT officer
+    it_officer = db.query(Employees).filter(Employees.RoleId == 3).first()
+    if it_officer is None:
+        raise HTTPException(status_code=404, detail="IT Officer not found")
+
+    it_officer_email = it_officer.UserEmail  # Replace with actual IT officer email
+
+    # Reopen Ticket HTML email body for IT officer
+    email_body = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                margin: 20px;
+                padding: 20px;
+            }}
+            h2 {{
+                color: #333;
+            }}
+            strong {{
+                font-weight: bold;
+            }}
+            .button-container {{
+                margin-top: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+            }}
+            .button-container button {{
+                background-color: #4CAF50; /* Green */
+                border: none;
+                color: white;
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                cursor: pointer;
+                border-radius: 5px;
+                margin-right: 10px;
+            }}
+            .button-container button:hover {{
+                background-color: #45a049;
+            }}
+        </style>
+    </head>
+    <body>
+        <h2>Your ticket ID {ticket.Id} has been reopened</h2>
+        <p><strong>Ticket ID:</strong> {ticket.Id}</p>
+        <p><strong>Title:</strong> {ticket.TicketTitle}</p>
+        <p><strong>Description:</strong> {ticket.Description}</p>
+        <p><strong>Status:</strong> {ticket_status_name}</p>
+    </body>
+    </html>
+    """    
+
+    send_email(it_officer_email, "Ticket Reopened", email_body, body_type="html")
+
+    return {"message": "Ticket has been reopened and IT officer notified."}

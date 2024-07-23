@@ -3,11 +3,11 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 class Messages(Base):
-    __tablename__ = 'Messages'
+    __tablename__ = 'EMessages'
 
     Id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    TicketId = Column(Integer, ForeignKey('Tickets.Id'), nullable=False)
-    SenderId = Column(Integer, ForeignKey('Employees.Id'), nullable=False)
+    TicketId = Column(Integer, ForeignKey('Tickets.Id', ondelete="NO ACTION"), nullable=False)
+    SenderId = Column(Integer, ForeignKey('Employees.Id', ondelete="NO ACTION"), nullable=False)
     Message = Column(String, nullable=False)
     Timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
